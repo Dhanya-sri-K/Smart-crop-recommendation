@@ -1,0 +1,17 @@
+Flask
+numpy
+imageio
+matplotlib
+keras
+pandas
+geopandas
+geopy
+reverse_geocoder
+joblib
+aiohttp
+tensorflow
+scikit-learn
+google-generativeai
+flask[async]
+aiohttp
+asyncio

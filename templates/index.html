@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2ecc71;
+            --secondary-color: #27ae60;
+            --accent-color: #e74c3c;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f9fc 0%, #e9ecef 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 0 auto;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .form-container:hover {
+            transform: translateY(-5px);
+        }
+
+        .page-title {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-location {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            margin-top: 10px;
+        }
+
+        .btn-location:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            margin-top: 20px;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .weather-info, .soil-info, .crop-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .file-upload {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary-color);
+            background-color: #f1f8f4;
+        }
+
+        .file-upload-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+        }
+
+        .confidence-high { color: #28a745; }
+        .confidence-medium { color: #ffc107; }
+        .confidence-low { color: #dc3545; }
+
+        .detail-item {
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        .manual-weather-inputs {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border: 1px solid #dee2e6;
+            transition: all 0.3s ease;
+        }
+
+        .btn-group {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .btn-check:checked + .btn-outline-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+        crop-details-info {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .subsection-title {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .detail-content {
+            color: #34495e;
+            line-height: 1.6;
+            font-size: 0.95rem;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .detail-section {
+            transition: transform 0.2s ease;
+        }
+        
+        .detail-section:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1 class="page-title">
+                <i class="fas fa-seedling me-2"></i>
+                Crop Recommendation System
+            </h1>
+            
+            {% if error %}
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" novalidate>
+                <!-- Soil Image Upload Section -->
+                <div class="mb-4">
+                    <label for="soil_image" class="form-label">
+                        <i class="fas fa-camera me-2"></i>Soil Image Analysis
+                    </label>
+                    <div class="file-upload">
+                        <label for="soil_image" class="file-upload-label">
+                            <div class="text-center">
+                                <i class="fas fa-cloud-upload-alt file-upload-icon"></i>
+                                <div>Drop your soil image here or click to browse</div>
+                            </div>
+                        </label>
+                        <input type="file" class="form-control d-none" id="soil_image" name="soil_image" accept="image/*" required>
+                    </div>
+                </div>
+
+                <!-- Location Coordinates Section -->
+                <div class="mb-4">
+                    <label for="coordinates" class="form-label">
+                        <i class="fas fa-map-marker-alt me-2"></i>Location Coordinates
+                    </label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="coordinates" name="coordinates" 
+                               placeholder="e.g., 12.9716,77.5946" required pattern="^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$">
+                        <button type="button" class="btn btn-location" onclick="getLocation()">
+                            <i class="fas fa-crosshairs me-2"></i>Get Current Location
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Planting Date Section -->
+                <div class="mb-4">
+                    <label for="date" class="form-label">
+                        <i class="fas fa-calendar-alt me-2"></i>Planting Date
+                    </label>
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+
+                <!-- Rainfall Data Source Section -->
+                <div class="mb-4">
+                    <label class="form-label">
+                        <i class="fas fa-cloud-rain me-2"></i>Rainfall Data Source
+                    </label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" class="btn-check" name="rainfall_input_type" id="api_rainfall" value="api" checked>
+                        <label class="btn btn-outline-primary" for="api_rainfall">
+                            <i class="fas fa-cloud me-2"></i>Use Weather API
+                        </label>
+                        
+                        <input type="radio" class="btn-check" name="rainfall_input_type" id="manual_rainfall_radio" value="manual">
+                        <label class="btn btn-outline-primary" for="manual_rainfall_radio">
+                            <i class="fas fa-edit me-2"></i>Manual Input
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Manual Weather Inputs Section -->
+                <div id="manual_inputs" class="manual-weather-inputs" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="manual_rainfall">
+                                <i class="fas fa-tint me-2"></i>Rainfall (mm)
+                            </label>
+                            <input type="number" class="form-control" id="manual_rainfall" name="manual_rainfall" step="0.01" min="0">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="temperature">
+                                <i class="fas fa-temperature-high me-2"></i>Temperature (°C)
+                            </label>
+                            <input type="number" class="form-control" id="temperature" name="temperature" step="0.1">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label" for="humidity">
+                                <i class="fas fa-humidity me-2"></i>Humidity (%)
+                            </label>
+                            <input type="number" class="form-control" id="humidity" name="humidity" min="0" max="100">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-submit w-100">
+                    <i class="fas fa-magic me-2"></i>Get Smart Recommendation
+                </button>
+            </form>
+
+            <!-- Results Section -->
+            {% if prediction %}
+            <div class="result-container">
+                <h3 class="text-center mb-4">
+                    <i class="fas fa-leaf me-2"></i>Your Personalized Recommendation
+                </h3>
+
+                <!-- Soil Analysis Results -->
+                {% if prediction.soil_analysis %}
+                <div class="soil-info">
+                    <h4 class="section-title">
+                        <i class="fas fa-microscope me-2"></i>Soil Analysis
+                    </h4>
+                    <div class="detail-item">
+                        <strong>Soil Type:</strong> {{ prediction.soil_analysis.soil_type }}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Confidence:</strong> 
+                        <span class="{% if prediction.soil_analysis.confidence >= 80 %}confidence-high{% elif prediction.soil_analysis.confidence >= 60 %}confidence-medium{% else %}confidence-low{% endif %}">
+                            {{ "%.2f"|format(prediction.soil_analysis.confidence) }}%
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Weather Information Results -->
+                {% if prediction.current_weather %}
+                <div class="weather-info">
+                    <h4 class="section-title">
+                        <i class="fas fa-cloud-sun me-2"></i>Weather Conditions
+                    </h4>
+                    <div class="detail-item">
+                        <i class="fas fa-temperature-high me-2"></i>
+                        <strong>Temperature:</strong> {{ "%.1f"|format(prediction.current_weather.temperature) }}°C
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-tint me-2"></i>
+                        <strong>Humidity:</strong> {{ prediction.current_weather.humidity }}%
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-cloud me-2"></i>
+                        <strong>Conditions:</strong> {{ prediction.current_weather.description|title }}
+                    </div>
+                    {% if prediction.current_weather.rainfall %}
+                    <div class="detail-item">
+                        <i class="fas fa-umbrella me-2"></i>
+                        <strong>Rainfall:</strong> {{ "%.2f"|format(prediction.current_weather.rainfall) }} mm
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Crop Information Results -->
+                <div class="crop-info">
+                    <h4 class="section-title">
+                        <i class="fas fa-seedling me-2"></i>Recommended Crop
+                    </h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3 text-success">{{ prediction.crop_name|title }}</h5>
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Crop Details</h5>
+                            {% if prediction.details %}
+                                {% for key, value in prediction.details.items() %}
+                                    {% if key != 'crop_name' %}
+                                    <div class="detail-item">
+                                        <strong>{{ key|title }}:</strong> {{ value }}
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Crop Information -->
+                {% if prediction.additional_info %}
+                <div class="crop-details-info">
+                    <h4 class="section-title">
+                        <i class="fas fa-info-circle me-2"></i>Detailed Crop Information
+                    </h4>
+                    
+                    {% if prediction.additional_info.cultivation_guide %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-book me-2"></i>Cultivation Guide
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.cultivation_guide }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if prediction.additional_info.soil_requirements %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-layer-group me-2"></i>Soil Requirements
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.soil_requirements }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if prediction.additional_info.climate_conditions %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-cloud-sun me-2"></i>Climate Conditions
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.climate_conditions }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if prediction.additional_info.harvesting %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-cut me-2"></i>Harvesting Information
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.harvesting }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if prediction.additional_info.diseases %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-bug me-2"></i>Disease Management
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.diseases }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if prediction.additional_info.market_value %}
+                    <div class="detail-section mb-4">
+                        <h5 class="subsection-title">
+                            <i class="fas fa-chart-line me-2"></i>Market Information
+                        </h5>
+                        <div class="detail-content">
+                            {{ prediction.additional_info.market_value }}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <script>
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const coordinates = position.coords.latitude + "," + position.coords.longitude;
+                        document.getElementById('coordinates').value = coordinates;
+                    },
+                    function(error) {
+                        let errorMessage;
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage = "Location access denied by user.";
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage = "Location information unavailable.";
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage = "Location request timed out.";
+                                break;
+                            default:
+                                errorMessage = "An unknown error occurred.";
+                        }
+                        alert(errorMessage);
+                    }
+                );
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // File upload preview
+        document.getElementById('soil_image').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                const label = document.querySelector('.file-upload-label div');
+                label.textContent = `Selected: ${fileName}`;
+            }
+        });
+
+        document.getElementById("date").valueAsDate = new Date();
+
+        document.querySelectorAll('input[name="rainfall_input_type"]').forEach((elem) => {
+            elem.addEventListener("change", function(event) {
+                const manualInputs = document.getElementById("manual_inputs");
+                const coordinatesGroup = document.querySelector(".input-group");
+                const locationButton = document.querySelector(".btn-location");
+                
+                if (event.target.value === "manual") {
+                    manualInputs.style.display = "block";
+                    // Make manual input fields required
+                    manualInputs.querySelectorAll('input').forEach(input => {
+                        input.required = true;
+                    });
+                } else {
+                    manualInputs.style.display = "none";
+                    // Remove required attribute from manual inputs
+                    manualInputs.querySelectorAll('input').forEach(input => {
+                        input.required = false;
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
